@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         AddAllResources();
+
+        GoldInfo.text = $"Gold: { UserDataManager.Progress.Gold.ToString("0") }";
+
+        _totalGold = UserDataManager.Progress.Gold;
     }
 
     // Update is called once per frame
@@ -59,6 +63,12 @@ public class GameManager : MonoBehaviour
             _collectSecond = 0f;
         }
 
+        if(UserDataManager.Progress.Gold != _totalGold)
+        {
+            UserDataManager.Progress.Gold = _totalGold;
+            UserDataManager.Save();
+        }
+
         CheckResourceCost();
         CheckGoldAchievement();
 
@@ -68,13 +78,16 @@ public class GameManager : MonoBehaviour
 
     private void AddAllResources()
     {
+        int index = 0;
+
         bool showResources = true;
         foreach (ResourceConfig config in ResourcesConfigs)
         {
             GameObject obj = Instantiate(ResourcePrefab.gameObject, ResourcesParent, false);
             ResourceController resource = obj.GetComponent<ResourceController>();
 
-            resource.SetConfig(config);
+            resource.SetConfig(index, config);
+            index++;
 
             obj.gameObject.SetActive(showResources);
             if (showResources && !resource.IsUnlocked)
