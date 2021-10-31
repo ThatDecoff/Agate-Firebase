@@ -30,9 +30,13 @@ public class GameManager : MonoBehaviour
     public Text GoldInfo;
     public Text AutoCollectInfo;
 
+    public float SaveDelay = 5f;
+
     private List<ResourceController> _activeResources = new List<ResourceController>();
     private List<TapText> _tapTextPool = new List<TapText>();
     private float _collectSecond;
+
+    private float _saveDelayCounter;
 
     private double _totalGold;
     public double TotalGold
@@ -56,6 +60,9 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        float deltaTime = Time.unscaledDeltaTime;
+        _saveDelayCounter -= deltaTime;
+
         _collectSecond += Time.unscaledDeltaTime;
         if (_collectSecond >= 1f)
         {
@@ -66,7 +73,8 @@ public class GameManager : MonoBehaviour
         if(UserDataManager.Progress.Gold != _totalGold)
         {
             UserDataManager.Progress.Gold = _totalGold;
-            UserDataManager.Save();
+            UserDataManager.Save(_saveDelayCounter < 0f);
+            _saveDelayCounter = (_saveDelayCounter < 0f) ? SaveDelay : _saveDelayCounter;
         }
 
         CheckResourceCost();
